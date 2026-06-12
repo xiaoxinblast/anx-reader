@@ -1,5 +1,8 @@
 **English** | [简体中文](README_zh.md) | [Türkçe](README_tr.md) | [Русский](README_RU.md)
 
+> **This is a fork of [Anxcye/anx-reader](https://github.com/Anxcye/anx-reader) (v1.14.0).**
+> Modifications: Fixed Android volume key page turning — volume keys now work for page navigation on e-ink devices (e.g. Hanwang Clear 7 Turbo) and other Android devices without physical page-turn buttons. See [Releases](https://github.com/xiaoxinblast/anx-reader/releases) for APK download.
+
 <br>
 
 <p align="center">

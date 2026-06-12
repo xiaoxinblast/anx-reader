@@ -1,5 +1,8 @@
 [English](README.md) | **简体中文** | [Türkçe](README_tr.md)
 
+> **本项目是 [Anxcye/anx-reader](https://github.com/Anxcye/anx-reader) (v1.14.0) 的 Fork。**
+> 修改内容：修复 Android 音量键翻页功能 — 在汉王 Clear 7 Turbo 等没有实体翻页键的 Android 电纸书设备上，可使用音量键翻页。APK 下载见 [Releases](https://github.com/xiaoxinblast/anx-reader/releases)。
+
 <p align="center">
   <img src="./docs/images/Anx-logo.jpg" alt="Anx-logo" width="100" />
 </p>
