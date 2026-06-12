@@ -1,0 +1,91 @@
+package com.anxcye.anx_reader
+
+import android.content.pm.PackageManager
+import android.content.Intent
+import android.os.Build
+import android.view.KeyEvent
+import com.ryanheise.audioservice.AudioServiceActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
+
+class MainActivity : AudioServiceActivity() {
+
+    private var volumeKeyTurnPage = false
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        // Ensure the latest intent is stored so plugins relying on Activity#getIntent can read it.
+        setIntent(intent)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (volumeKeyTurnPage) {
+            when (keyCode) {
+                KeyEvent.KEYCODE_VOLUME_UP -> {
+                    volumeKeyChannel?.invokeMethod("volumeUp", null)
+                    return true
+                }
+                KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                    volumeKeyChannel?.invokeMethod("volumeDown", null)
+                    return true
+                }
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            INSTALL_INFO_CHANNEL
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getInstallInfo" -> {
+                    try {
+                        val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            packageManager.getPackageInfo(
+                                packageName,
+                                PackageManager.PackageInfoFlags.of(0),
+                            )
+                        } else {
+                            @Suppress("DEPRECATION")
+                            packageManager.getPackageInfo(packageName, 0)
+                        }
+                        result.success(
+                            hashMapOf(
+                                "firstInstallTime" to packageInfo.firstInstallTime,
+                                "lastUpdateTime" to packageInfo.lastUpdateTime,
+                            ),
+                        )
+                    } catch (e: Exception) {
+                        result.error("PACKAGE_INFO_ERROR", e.message, null)
+                    }
+                }
+
+                else -> result.notImplemented()
+            }
+        }
+
+        volumeKeyChannel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            VOLUME_KEY_CHANNEL
+        )
+        volumeKeyChannel?.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "setVolumeKeyTurnPage" -> {
+                    volumeKeyTurnPage = call.argument<Boolean>("enabled") ?: false
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+    }
+
+    companion object {
+        private const val INSTALL_INFO_CHANNEL = "com.anxcye.anx_reader/install_info"
+        private const val VOLUME_KEY_CHANNEL = "com.anxcye.anx_reader/volume_keys"
+        private var volumeKeyChannel: MethodChannel? = null
+    }
+}
